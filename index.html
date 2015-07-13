@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Генератор примеров</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+</head>
+<body>
+
+    <div class="container">
+
+        <br/><br/><br/><br/><br/>
+
+        <form>
+            <div class="form-group">
+                <label for="digit-count">Количество разрядов в числе</label>
+                <input type="text" class="form-control" id="digit-count" placeholder="Разряд чисел">
+            </div>
+            <div class="checkbox">
+                Операции
+                &nbsp;&nbsp;
+                <label>
+                    <input type="checkbox" id="plus-operation"> сложение
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                    <input type="checkbox" id="minus-operation"> вычитание
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                    <input type="checkbox" id="multiplication-operation"> умножение
+                </label>
+                &nbsp;&nbsp;
+                <label>
+                    <input type="checkbox" id="division-operation"> деление
+                </label>
+            </div>
+            <button type="button" class="btn btn-default" id="generate-praxis">Создать пример</button>
+            <button type="button" class="btn btn-default" id="clear">Очистить</button>
+        </form>
+
+        <div id="output" style="border:1px dotted gray; padding: 10px; margin: 10px 0;"></div>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script src="generator.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var generator = new Praxis.Generator($('#output'), $('#digit-count'),
+                    $('#plus-operation'),
+                    $('#minus-operation'),
+                    $('#multiplication-operation'),
+                    $('#division-operation')
+            );
+            $('#generate-praxis').click(function() {
+                generator.generateAndOutput();
+            });
+            $('#clear').click(function() {
+                $('#output').empty();
+            });
+        });
+    </script>
+
+</body>
+</html>
