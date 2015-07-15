@@ -31,14 +31,14 @@ Praxis.Generator = function($outputContainer, $digitCountInput,
                 break;
             case 2 :
                 if ($multiplicationChecker[0].checked) {
-                    return '*';
+                    return '·';
                 } else {
                     return this._getOperationSign();
                 }
                 break;
             case 3 :
                 if ($divisionChecker[0].checked) {
-                    return '/';
+                    return ':';
                 } else {
                     return this._getOperationSign();
                 }
@@ -47,27 +47,51 @@ Praxis.Generator = function($outputContainer, $digitCountInput,
         }
     };
 
-    this._generateOperation = function(digitCount, operation) {
+    this._generateOperation = function(digitCount, result) {
 
-        var operationSign;
-        var result;
+        var operationSign = this._getOperationSign();
 
-        switch (operation) {
+        var arg1, arg2;
+
+        switch (operationSign) {
             case '+' :
-                operationSign = '+';
+                arg1 = this._generateNumberMax(result);
+                arg2 = result - arg1;
                 break;
             case '-' :
-                operationSign = '-';
+                var arg1digitCount = digitCount;
+                if (String(result).length > digitCount) {
+                    arg1digitCount = String(result).length + 1;
+                }
+                do {
+                    arg1 = this._generateNumberLength(arg1digitCount);
+                } while (arg1 < result);
+                arg1 = result + this._generateNumberLength(digitCount);
+                arg2 = arg1 - result;
                 break;
-            case '*' :
-                operationSign = '·';
+            case '·' :
+                do {
+                    arg1 = this._generateNumberMax(result);
+                } while (result % arg1 > 0);
+                arg2 = result / arg1;
                 break;
-            case '/' :
-                operationSign = ':';
-                break;
+            case ':' :
+                arg2 = this._generateNumberLength(digitCount);
+                arg1 = result * arg2;
+                break
         }
 
-        return this._generateNumberLength(digitCount) + ' ' + operationSign + ' ' + this._generateNumberLength(digitCount);
+        return arg1 + ' ' + operationSign + ' ' + arg2;
+
+    };
+
+    this.generatePraxis = function(digitCount) {
+
+        var result = this._generateNumberLength(digitCount);
+
+        var praxis = this._generateOperation(digitCount, result);
+
+        return praxis + ' = ' + result;
 
     };
 
@@ -85,7 +109,7 @@ Praxis.Generator = function($outputContainer, $digitCountInput,
             return;
         }
 
-        $outputContainer.append(this._generateOperation(digitCount, this._getOperationSign()));
+        $outputContainer.append(this.generatePraxis(digitCount));
         $outputContainer.append('<br/>');
 
     };
