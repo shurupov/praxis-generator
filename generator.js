@@ -1,8 +1,10 @@
 var Praxis = {};
 
-Praxis.Generator = function($outputContainer, $digitCountInput,
+Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountInput,
                             $plusChecker, $minusChecker, $multiplicationChecker, $divisionChecker) {
 
+
+    var operationCount = 0;
 
     this._generateNumberLength = function(digitCount) {
         return this._generateNumberMax(Math.pow(10, digitCount));
@@ -76,20 +78,31 @@ Praxis.Generator = function($outputContainer, $digitCountInput,
                 arg2 = result / arg1;
                 break;
             case ':' :
-                arg2 = this._generateNumberLength(digitCount);
+                arg2 = this._generateNumberLength(Math.min(digitCount, 3));
                 arg1 = result * arg2;
                 break
         }
 
-        return arg1 + ' ' + operationSign + ' ' + arg2;
+        operationCount--;
 
+        return this._generateOperationOrNumber(digitCount, arg1, operationCount) + ' ' +
+            operationSign + ' ' +
+            this._generateOperationOrNumber(digitCount, arg2, operationCount);
+
+    };
+
+    this._generateOperationOrNumber = function(digitCount, result) {
+        if (operationCount == 0) {
+            return result;
+        }
+        return '(' + this._generateOperation(digitCount, result) + ')';
     };
 
     this.generatePraxis = function(digitCount) {
 
         var result = this._generateNumberLength(digitCount);
 
-        var praxis = this._generateOperation(digitCount, result);
+        var praxis = this._generateOperationOrNumber(digitCount, result);
 
         return praxis + ' = ' + result;
 
@@ -98,6 +111,7 @@ Praxis.Generator = function($outputContainer, $digitCountInput,
     this.generateAndOutput = function() {
 
         var digitCount = $digitCountInput.val();
+        operationCount = $operationCountInput.val();
 
         if (!digitCount) {
             alert('Введите количество разрядов в числе!');

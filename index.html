@@ -24,6 +24,10 @@
                 <label for="digit-count">Количество разрядов в числе</label>
                 <input type="text" class="form-control" id="digit-count" placeholder="Разряд чисел" value="3">
             </div>
+            <div class="form-group">
+                <label for="operation-count">Количество действий</label>
+                <input type="text" class="form-control" id="operation-count" placeholder="Разряд чисел" value="3">
+            </div>
             <div class="checkbox">
                 Операции
                 &nbsp;&nbsp;
@@ -60,11 +64,9 @@
 
     <script>
         $(document).ready(function () {
-            var generator = new Praxis.Generator($('#output'), $('#digit-count'),
-                    $('#plus-operation'),
-                    $('#minus-operation'),
-                    $('#multiplication-operation'),
-                    $('#division-operation')
+            var generator = new Praxis.Generator(
+                    $('#output'), $('#digit-count'), $('#operation-count'),
+                    $('#plus-operation'), $('#minus-operation'), $('#multiplication-operation'), $('#division-operation')
             );
             $('#generate-praxis').click(function() {
                 generator.generateAndOutput();
