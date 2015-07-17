@@ -85,20 +85,41 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
         }
 
         return {
-            arg1: arg1,
+            result: result,
+            leftArg: arg1,
             sign: operationSign,
-            arg2: arg2
+            rightArg: arg2
         };
-
-        /*return this._generateOperationOrNumber(digitCount, arg1, operationCount) + ' ' +
-            operationSign + ' ' +
-            this._generateOperationOrNumber(digitCount, arg2, operationCount);*/
 
     };
 
+    this._generateOperationLine = function(operation) {
+
+        var leftPart = operation.leftArg.resultLine;
+        var rightPart = operation.rightArg.resultLine;
+
+        if (this._isAddOrSub(operation.leftArg.sign) && this._isMultiOrDiv(operation.sign)) {
+            leftPart = '(' + leftPart + ')';
+        }
+
+        if (
+            (this._isAddOrSub(operation.rightArg.sign) && this._isMultiOrDiv(operation.sign)) ||
+            (this._isAddOrSub(operation.rightArg.sign) && this._isSubtraction(operation.sign)) ||
+            (this._isMultiOrDiv(operation.rightArg.sign) && this._isDivision(operation.sign))
+            ) {
+            rightPart = '(' + rightPart + ')';
+        }
+
+        return leftPart + ' ' + operation.sign + ' ' + rightPart;
+    };
+
     this._generateOperationOrNumber = function(digitCount, result, operationCount) {
+
         if (operationCount == 0) {
-            return result;
+            return {
+                result: result,
+                resultLine: result
+            };
         }
 
         operationCount--;
@@ -107,11 +128,12 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
 
         var operation = this._generateOperation(digitCount, result);
 
-        var leftArgument = this._generateOperationOrNumber(digitCount, operation.arg1, leftOperationCount);
+        operation.leftArg = this._generateOperationOrNumber(digitCount, operation.leftArg, leftOperationCount);
+        operation.rightArg = this._generateOperationOrNumber(digitCount, operation.rightArg, rightOperationCount);
 
-        var rightArgument = this._generateOperationOrNumber(digitCount, operation.arg2, rightOperationCount);
+        operation.resultLine = this._generateOperationLine(operation);
 
-        return '(' + leftArgument + ' ' + operation.sign + ' ' + rightArgument + ')';
+        return operation;
     };
 
     this._isAddOrSub = function(sign) {
@@ -122,23 +144,22 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
         return sign == '·' || sign == ':';
     };
 
+    this._isSubtraction = function(sign) {
+        return sign == '-';
+    };
+
+    this._isDivision = function(sign) {
+        return sign == ':';
+    };
+
     this.generatePraxis = function(digitCount, operationCount) {
 
         var result = this._generateNumberLength(digitCount);
-
         var praxis = this._generateOperationOrNumber(digitCount, result, operationCount);
 
-        return praxis + ' = ' + result;
+        console.log(praxis);
 
-    };
-
-    this.generatePraxisWithBinaryTree = function(digitCount) {
-
-        var topElement = {
-            result: this._generateNumberLength(digitCount),
-            left: null,
-            right: null
-        };
+        return praxis.resultLine + ' = ' + result;
 
     };
 
