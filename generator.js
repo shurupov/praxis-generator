@@ -1,9 +1,5 @@
 var Praxis = {};
 
-Praxis.OperationGenerator = function() {
-
-};
-
 Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountInput,
                             $plusChecker, $minusChecker, $multiplicationChecker, $divisionChecker) {
 
@@ -161,8 +157,6 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
 
         var result = this._generateNumberLength(digitCount);
         var praxis = this._generateOperationOrNumber(digitCount, result, operationCount);
-
-        console.log(praxis);
 
         return praxis.resultLine + ' = ' + result;
 
