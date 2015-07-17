@@ -1,10 +1,11 @@
 var Praxis = {};
 
+Praxis.OperationGenerator = function() {
+
+};
+
 Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountInput,
                             $plusChecker, $minusChecker, $multiplicationChecker, $divisionChecker) {
-
-
-    var operationCount = 0;
 
     this._generateNumberLength = function(digitCount) {
         return this._generateNumberMax(Math.pow(10, digitCount));
@@ -83,35 +84,68 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
                 break
         }
 
-        operationCount--;
+        return {
+            arg1: arg1,
+            sign: operationSign,
+            arg2: arg2
+        };
 
-        return this._generateOperationOrNumber(digitCount, arg1, operationCount) + ' ' +
+        /*return this._generateOperationOrNumber(digitCount, arg1, operationCount) + ' ' +
             operationSign + ' ' +
-            this._generateOperationOrNumber(digitCount, arg2, operationCount);
+            this._generateOperationOrNumber(digitCount, arg2, operationCount);*/
 
     };
 
-    this._generateOperationOrNumber = function(digitCount, result) {
+    this._generateOperationOrNumber = function(digitCount, result, operationCount) {
         if (operationCount == 0) {
             return result;
         }
-        return '(' + this._generateOperation(digitCount, result) + ')';
+
+        operationCount--;
+        var leftOperationCount = Math.floor(operationCount / 2);
+        var rightOperationCount = operationCount - leftOperationCount;
+
+        var operation = this._generateOperation(digitCount, result);
+
+        var leftArgument = this._generateOperationOrNumber(digitCount, operation.arg1, leftOperationCount);
+
+        var rightArgument = this._generateOperationOrNumber(digitCount, operation.arg2, rightOperationCount);
+
+        return '(' + leftArgument + ' ' + operation.sign + ' ' + rightArgument + ')';
     };
 
-    this.generatePraxis = function(digitCount) {
+    this._isAddOrSub = function(sign) {
+        return sign == '+' || sign == '-';
+    };
+
+    this._isMultiOrDiv = function(sign) {
+        return sign == '·' || sign == ':';
+    };
+
+    this.generatePraxis = function(digitCount, operationCount) {
 
         var result = this._generateNumberLength(digitCount);
 
-        var praxis = this._generateOperationOrNumber(digitCount, result);
+        var praxis = this._generateOperationOrNumber(digitCount, result, operationCount);
 
         return praxis + ' = ' + result;
+
+    };
+
+    this.generatePraxisWithBinaryTree = function(digitCount) {
+
+        var topElement = {
+            result: this._generateNumberLength(digitCount),
+            left: null,
+            right: null
+        };
 
     };
 
     this.generateAndOutput = function() {
 
         var digitCount = $digitCountInput.val();
-        operationCount = $operationCountInput.val();
+        var operationCount = $operationCountInput.val();
 
         if (!digitCount) {
             alert('Введите количество разрядов в числе!');
@@ -123,7 +157,7 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
             return;
         }
 
-        $outputContainer.append(this.generatePraxis(digitCount));
+        $outputContainer.append(this.generatePraxis(digitCount, operationCount));
         $outputContainer.append('<br/>');
 
     };
