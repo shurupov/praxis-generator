@@ -73,10 +73,15 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
                 arg2 = arg1 - result;
                 break;
             case '·' :
-                do {
-                    arg1 = this._generateNumberMax(result);
-                } while (result % arg1 > 0);
-                arg2 = result / arg1;
+                if (result == 0) {
+                    arg1 = 0;
+                    arg2 = this._generateNumberLength(digitCount);
+                } else {
+                    do {
+                        arg1 = this._generateNumberMax(result);
+                    } while (result % arg1 > 0 || arg1 == 0);
+                    arg2 = result / arg1;
+                }
                 break;
             case ':' :
                 arg2 = this._generateNumberLength(Math.min(digitCount, 3));
