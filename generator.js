@@ -141,9 +141,10 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
                 this._addOperationResult(operation.leftArg);
                 this._addOperationResult(operation.rightArg);
 
-                if (this._isAddition(operation.sign) || this._isAddOrSub(operation.rightArg.sign)) {
-                    var intermediateResult = operation.leftArg.result + operation.rightArg.leftArg.result;
-                    this.operationResults[this.operationCounter - 1] = intermediateResult;
+                if (this._isAddition(operation.sign) && this._isAddOrSub(operation.rightArg.sign)) {
+                    this.operationResults[operation.rightArg.number] = operation.leftArg.result + operation.rightArg.leftArg.result;
+                } else if (this._isMultiplication(operation.sign) && this._isMultiOrDiv(operation.rightArg.sign)) {
+                    this.operationResults[operation.rightArg.number] = operation.leftArg.result * operation.rightArg.leftArg.result;
                 }
 
             }
@@ -153,9 +154,9 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
     };
 
     this._addOperationResult = function(operation) {
-        operation.number = this.operationCounter;
-        this.operationResults[this.operationCounter] = operation.result;
-        this.operationCounter++;
+//        operation.number = this.operationCounter;
+        this.operationResults[operation.number] = operation.result;
+//        this.operationCounter++;
     };
 
     this._generateOperationOrNumber = function(digitCount, result, operationCount) {
@@ -174,9 +175,10 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
 
         var operation = this._generateOperation(digitCount, result);
 
-        operation.rightArg = this._generateOperationOrNumber(digitCount, operation.rightArg, rightOperationCount);
         operation.leftArg = this._generateOperationOrNumber(digitCount, operation.leftArg, leftOperationCount);
+        operation.rightArg = this._generateOperationOrNumber(digitCount, operation.rightArg, rightOperationCount);
 
+        operation.number = this.operationCounter++;
 
         this._addIntermediateResults(operation);
 
@@ -195,6 +197,10 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
 
     this._isSubtraction = function(sign) {
         return sign == '-';
+    };
+
+    this._isMultiplication = function(sign) {
+        return sign == '·';
     };
 
     this._isAddition = function(sign) {
