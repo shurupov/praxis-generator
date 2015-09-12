@@ -3,6 +3,9 @@ var Praxis = {};
 Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountInput,
                             $plusChecker, $minusChecker, $multiplicationChecker, $divisionChecker) {
 
+    this.operationCounter = 0;
+    this.operationResults = [];
+
     this._generateNumberLength = function(digitCount) {
         return this._generateNumberMax(Math.pow(10, digitCount));
     };
@@ -86,6 +89,7 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
         }
 
         return {
+            isOperation: true,
             result: result,
             leftArg: arg1,
             sign: operationSign,
@@ -114,23 +118,67 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
         return leftPart + ' ' + operation.sign + ' ' + rightPart;
     };
 
+    this._addIntermediateResults = function(operation) {
+
+        if (operation.leftArg.isOperation && !operation.rightArg.isOperation) {
+
+            this._addOperationResult(operation.leftArg);
+
+        } else if (!operation.leftArg.isOperation && operation.rightArg.isOperation) {
+
+            this._addOperationResult(operation.rightArg);
+
+        } else if (operation.leftArg.isOperation && operation.rightArg.isOperation) {
+
+            if (this._isAddOrSub(operation.leftArg.sign) && this._isMultiOrDiv(operation.rightArg.sign)) {
+
+
+                this._addOperationResult(operation.rightArg);
+                this._addOperationResult(operation.leftArg);
+
+            } else {
+
+                this._addOperationResult(operation.leftArg);
+                this._addOperationResult(operation.rightArg);
+
+                if (this._isAddition(operation.sign) || this._isAddOrSub(operation.rightArg.sign)) {
+                    var intermediateResult = operation.leftArg.result + operation.rightArg.leftArg.result;
+                    this.operationResults[this.operationCounter - 1] = intermediateResult;
+                }
+
+            }
+
+        }
+
+    };
+
+    this._addOperationResult = function(operation) {
+        operation.number = this.operationCounter;
+        this.operationResults[this.operationCounter] = operation.result;
+        this.operationCounter++;
+    };
+
     this._generateOperationOrNumber = function(digitCount, result, operationCount) {
 
         if (operationCount == 0) {
             return {
+                isOperation: false,
                 result: result,
                 resultLine: result
             };
         }
 
         operationCount--;
-        var leftOperationCount = Math.floor(operationCount / 2);
+        var leftOperationCount = Math.ceil(operationCount / 2);
         var rightOperationCount = operationCount - leftOperationCount;
 
         var operation = this._generateOperation(digitCount, result);
 
-        operation.leftArg = this._generateOperationOrNumber(digitCount, operation.leftArg, leftOperationCount);
         operation.rightArg = this._generateOperationOrNumber(digitCount, operation.rightArg, rightOperationCount);
+        operation.leftArg = this._generateOperationOrNumber(digitCount, operation.leftArg, leftOperationCount);
+
+
+        this._addIntermediateResults(operation);
 
         operation.resultLine = this._generateOperationLine(operation);
 
@@ -149,16 +197,34 @@ Praxis.Generator = function($outputContainer, $digitCountInput, $operationCountI
         return sign == '-';
     };
 
+    this._isAddition = function(sign) {
+        return sign == '+';
+    };
+
     this._isDivision = function(sign) {
         return sign == ':';
     };
 
     this.generatePraxis = function(digitCount, operationCount) {
 
+        this.operationCounter = 0;
+        this.operationResults = [];
+
         var result = this._generateNumberLength(digitCount);
         var praxis = this._generateOperationOrNumber(digitCount, result, operationCount);
 
-        return praxis.resultLine + ' = ' + result;
+        praxis.number = this.operationCounter;
+        this.operationResults[this.operationCounter] = praxis.result;
+
+        console.log(praxis);
+        console.log(this.operationResults);
+
+        var intermediateResults = '';
+        for (var i in this.operationResults) {
+            intermediateResults += (parseFloat(i) + parseFloat(1)) + ')' + this.operationResults[i] + '; ';
+        }
+
+        return praxis.resultLine + ' = ' + result + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + intermediateResults;
 
     };
 
